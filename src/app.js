@@ -3,7 +3,9 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const createError = require("http-errors");
 const xssClean = require('xss-clean')
-const  rateLimit=require('express-rate-limit')
+const  rateLimit=require('express-rate-limit');
+const { userRouter } = require("./routers/userRoute");
+const { postRouter } = require("./routers/postRoute");
 const app = express();
 
 const limiter = rateLimit({
@@ -14,6 +16,7 @@ const limiter = rateLimit({
 	// store: ... , // Redis, Memcached, etc. See below.
 })
 // middelware
+
 app.use(limiter);
 app.use(xssClean());
 app.use(morgan("dev"));
@@ -22,31 +25,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // middleware
+// router
+app.use("/api/users",userRouter);
+app.use("/api/posts",postRouter);
 
-const isLogdin = (req, res, next) => {
-  console.log("user is Authorize");
-  const login = true;
-  if (login) {
-    req.body.id = 101;
-    next();
-  } else {
-    return res.status(401).send({ message: "please login" });
-  }
-};
+
 
 app.get("/", async (req, res) => {
   res.json({ message: "hello word" });
 });
-app.get("/users", isLogdin, async (req, res) => {
-  console.log(req.body.id);
-  console.log("Get hg All Users");
-  res.status(200).send({ message: "Get hg All Users" });
-});
 
-// clent error handel
-app.use((req, res, next) => {
-  next(createError(404, "!!!sorry not found route"));
-});
+
 // server error handel
 app.use((err, req, res, next) => {
   return res.status(err.status || 500).json({

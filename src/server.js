@@ -1,7 +1,8 @@
 const app = require("./app");
+const { port } = require("./secret");
 
 app;
-const port = 30001;
+
 app.listen(port,() => {
-  console.log(`Example  app listening on port 3001`);
+  console.log(`Example  app listening on port  ${port}`);
 });
